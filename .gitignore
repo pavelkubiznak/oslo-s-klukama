@@ -1,0 +1,10 @@
+# Na web nepatří: strany PDF s adresou bytu a mapami, díly videa (video je na YouTube),
+# fotka zvonku s adresou bytu.
+program/
+den1/video/*.mp4
+den1/video/dily.json
+den1/fotky/IMG_3015.jpg
+den1/fotky/nahled/IMG_3015.jpg
+.DS_Store
+den1/fotky/IMG_3067.jpg
+den1/fotky/nahled/IMG_3067.jpg

@@ -1,0 +1,579 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oslo s klukama</title>
+<meta name="robots" content="noindex, nofollow"><!-- rodinný deník jen pro ty, kdo mají odkaz: nehledat ve vyhledávačích -->
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* Deník z cesty: nahoře dny jako záložky, v každém dni video, úvod, jedna galerie a text. Barvy: mokrý mramor Opery, fjord, červené svetry kluků. */
+:root {
+  --bg: #f2f4f5;          /* mokrý mramor */
+  --paper: #ffffff;
+  --ink: #18212b;
+  --muted: #5b6874;
+  --line: #d8dee3;
+  --fjord: #2b5a78;
+  --sweater: #b0362b;
+  --stage: #11171d;       /* pozadí za fotkou v galerii, v obou režimech tmavé */
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Literata", Georgia, "Times New Roman", serif;
+  --step-0: 1.125rem;
+  --step-lead: clamp(1.2rem, 1.05rem + .6vw, 1.45rem);
+  --step-2: clamp(1.5rem, 1.15rem + 1.4vw, 2rem);
+  --step-3: clamp(2.6rem, 1.6rem + 5vw, 4.6rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161b; --paper: #182028; --ink: #e5e9ed; --muted: #9aa7b3; --line: #2a343e;
+    --fjord: #8db6d3; --sweater: #e57a68; --stage: #0a0e12; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161b; --paper: #182028; --ink: #e5e9ed; --muted: #9aa7b3; --line: #2a343e;
+  --fjord: #8db6d3; --sweater: #e57a68; --stage: #0a0e12; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 var(--step-0)/1.65 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 72px; display: grid; gap: 40px; }
+.col { max-width: 40rem; margin: 0 auto; width: 100%; min-width: 0; }
+
+header { display: grid; gap: 10px; }
+.kicker { font: 700 .8rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--sweater); }
+h1 { font: 800 var(--step-3)/.95 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.who { color: var(--muted); margin: 4px 0 0; font-size: 1.05rem; }
+
+/* dny jako záložky */
+.days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+.days a, .days span {
+  flex: none; display: grid; gap: 2px; padding: 10px 14px; border-radius: 10px; text-decoration: none;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink); min-width: 0;
+}
+.days b { font: 700 .95rem/1.2 var(--display); }
+.days small { font: 500 .8rem/1.25 var(--display); color: var(--muted); }
+.days a:hover { border-color: var(--fjord); }
+.days a[aria-current="page"] { background: var(--fjord); border-color: var(--fjord); color: var(--bg); }
+.days a[aria-current="page"] small { color: var(--bg); opacity: .85; }
+/* dny, které teprve přijdou: šedé, čárkovaný rámeček */
+.days a.soon { border-style: dashed; background: transparent; color: var(--muted); }
+.days a.soon b { font-weight: 500; }
+.days a.soon[aria-current="page"] { background: transparent; color: var(--ink); border-color: var(--fjord); }
+.days a.soon[aria-current="page"] small { color: var(--muted); opacity: 1; }
+.days a:focus-visible, button:focus-visible, .plan-link:focus-visible { outline: 3px solid var(--fjord); outline-offset: 2px; }
+
+.entry { display: grid; gap: 40px; }
+.entry-head { display: grid; gap: 8px; }
+.date { font: 700 .8rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+h2 { font: 700 var(--step-2)/1.15 var(--display); letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.entry-head h2 { font-size: clamp(2rem, 1.4rem + 2.4vw, 3rem); font-weight: 800; }
+.lead { font-size: var(--step-lead); line-height: 1.55; margin-block: 0; }
+.label { font: 700 .8rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 12px; margin: 0; }
+.label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+/* program týdne: karta pro každý den */
+.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+.plan-day {
+  display: grid; gap: 10px; align-content: start; padding: 18px 18px 16px; border-radius: 12px;
+  background: var(--paper); border: 1px solid var(--line); border-top: 4px solid var(--fjord); scroll-margin-top: 24px;
+}
+.plan-day h3 { font: 700 1.3rem/1.2 var(--display); margin: 0; text-wrap: balance; }
+.plan-day ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: 1rem; line-height: 1.5; }
+.plan-day li::marker { color: var(--sweater); }
+.plan-state { font: 700 .75rem/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--sweater); }
+.plan-link {
+  justify-self: start; margin-top: 4px; font: 600 .95rem/1 var(--display); text-decoration: none;
+  color: var(--bg); background: var(--fjord); border-radius: 999px; padding: 11px 16px;
+}
+.plan-link:hover { filter: brightness(1.1); }
+/* den, který teprve přijde: zřetelně šedý */
+.plan-day.soon { background: transparent; border-style: dashed; border-top: 4px dashed var(--line); color: var(--muted); }
+.plan-day.soon:not(.today) { opacity: .72; }
+.plan-day.soon h3, .plan-day.soon b { font-weight: 600; }
+.plan-day.soon li::marker { color: var(--muted); }
+.plan-day.soon .plan-state { color: var(--muted); }
+.plan-day.today { border-top-color: var(--sweater); border-top-style: solid; }
+.plan-day.today .plan-state { color: var(--sweater); }
+.plan-day.flash { outline: 3px solid var(--fjord); outline-offset: 3px; }
+
+/* video: přehrávač YouTube, dokud tam není odkaz, jen náhled */
+.film { display: grid; gap: 10px; }
+.film-frame { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: #000; border-radius: 8px; overflow: hidden; }
+.film-frame iframe, .film-frame img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
+.film-frame img { opacity: .8; }
+.film-soon {
+  position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); display: grid; gap: 4px; color: #fff;
+  background: rgba(10, 14, 18, .75); border-radius: 10px; padding: 12px 16px;
+  font: 700 clamp(1.05rem, .9rem + .8vw, 1.35rem)/1.2 var(--display);
+}
+.film-soon small { font: 500 .95rem/1.4 var(--display); opacity: .85; }
+.film-cap { font: 500 1rem/1.4 var(--display); color: var(--muted); margin: 0; }
+
+/* galerie: velká fotka a pás náhledů pod ní */
+.gal { display: grid; gap: 10px; min-width: 0; }
+.gal-stage { position: relative; aspect-ratio: 3 / 2; max-width: 100%; background: var(--stage); border-radius: 8px; overflow: hidden; }
+.gal-stage > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
+.gal-nav {
+  position: absolute; top: 50%; translate: 0 -50%; width: 48px; height: 48px; border-radius: 50%; border: 0;
+  background: rgba(10, 14, 18, .55); color: #fff; font: 700 1.4rem/1 var(--display); cursor: pointer;
+}
+.gal-nav:hover { background: rgba(10, 14, 18, .8); }
+.gal-prev { left: 10px; } .gal-next { right: 10px; }
+.gal-count, .gal-full {
+  position: absolute; bottom: 10px; font: 600 .85rem/1 var(--display); color: #fff;
+  background: rgba(10, 14, 18, .6); border-radius: 999px; padding: 8px 12px; font-variant-numeric: tabular-nums;
+}
+.gal-count { left: 10px; }
+.gal-full { right: 10px; border: 0; cursor: pointer; }
+.gal-cap { font: 500 1rem/1.4 var(--display); color: var(--muted); margin: 0; min-height: 1.4em; }
+.gal-strip { display: flex; gap: 6px; overflow-x: auto; padding: 2px 2px 8px; scroll-behavior: smooth; scrollbar-width: thin; }
+.gal-strip button { flex: none; padding: 0; border: 2px solid transparent; border-radius: 6px; background: none; cursor: pointer; opacity: .7; }
+.gal-strip button:hover { opacity: 1; }
+.gal-strip button[aria-current="true"] { border-color: var(--sweater); opacity: 1; }
+.gal-strip img { display: block; height: 64px; width: auto; border-radius: 4px; background: var(--line); }
+@media (prefers-reduced-motion: reduce) { .gal-strip { scroll-behavior: auto; } }
+
+/* text */
+.text-block { display: grid; gap: 48px; }
+section { display: grid; gap: 16px; }
+p { margin: 0; }
+.text { display: grid; gap: 1em; }
+blockquote { margin: 0; padding: 4px 0 4px 18px; border-left: 3px solid var(--sweater); font-style: italic; }
+.next { border-top: 1px solid var(--line); padding-top: 24px; color: var(--muted); }
+.next b { color: var(--ink); }
+
+footer { color: var(--muted); font: 500 .95rem/1.5 var(--display); text-align: center; }
+
+/* fotka přes celou obrazovku */
+.viewer {
+  position: fixed; inset: 0; z-index: 20; background: rgba(6, 9, 12, .97); display: grid;
+  grid-template-rows: auto 1fr auto; color: #f1f4f6;
+  padding: env(safe-area-inset-top, 0px) max(8px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(8px, env(safe-area-inset-left, 0px));
+}
+.viewer .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 4px; font: 500 .95rem/1.3 var(--display); }
+.viewer .stage { position: relative; min-height: 0; }
+.viewer .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.viewer .nav { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px 12px; gap: 12px; font-variant-numeric: tabular-nums; }
+.viewer button {
+  font: 600 1rem/1 var(--display); color: #f1f4f6; background: rgba(255,255,255,.12);
+  border: 0; border-radius: 999px; padding: 12px 18px; cursor: pointer; flex: none;
+}
+.viewer button:hover { background: rgba(255,255,255,.22); }
+.viewer button:focus-visible { outline: 3px solid #8db6d3; outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+  <header class="col">
+    <span class="kicker">Deník z cesty · 24. 10. – 1. 11. 2026</span>
+    <h1>Oslo s klukama</h1>
+    <p class="who">Pavel, Šárka, Máťa a Tomík. Každý den pár řádků, fotky a video pro vás doma, ať vidíte, jak se máme.</p>
+  </header>
+
+  <nav class="days" id="days" aria-label="Dny"></nav>
+
+  <!-- Program: karta pro každý den. Když den proběhne a má svůj zápis, doplnit kartě data-entry="denN"
+       a karta i záložka zbarví. Dny bez zápisu jsou šedé, v navigaci „brzy“. -->
+  <article class="entry" id="program" data-short="Program týdne" data-title="Co nás čeká" hidden>
+    <div class="entry-head col">
+      <span class="date">24. 10. – 1. 11. 2026</span>
+      <h2>Co nás čeká</h2>
+    </div>
+    <p class="lead col">Celý pobyt máme naplánovaný den po dni. Šedé dny teprve přijdou; jakmile den proběhne, přibude u něj zápis s fotkami a videem. Když prší, plán se mění.</p>
+    <ol class="plan" aria-label="Program po dnech">
+      <li class="plan-day" id="so24" data-date="2026-10-24" data-short="So 24. 10." data-entry="den1">
+        <span class="date">Sobota 24. října</span>
+        <h3>Cesta do Osla</h3>
+        <ul>
+          <li>Ráno let z Prahy do Osla</li>
+          <li>Z letiště vlakem a tramvají, s kufry a bez auta</li>
+          <li>Večer zabydlet se v bytě</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="ne25" data-date="2026-10-25" data-short="Ne 25. 10." data-entry="den1">
+        <span class="date">Neděle 25. října</span>
+        <h3>Festival v knihovně</h3>
+        <ul>
+          <li><b>Knihovna Deichman</b>: festival pro děti, tvoření, pokusy a hry</li>
+          <li><b>Opera</b>: krátce zvenku, když přestane pršet</li>
+          <li>Kvůli dešti hlavně pod střechou</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="po26" data-date="2026-10-26" data-short="Po 26. 10.">
+        <span class="date">Pondělí 26. října</span>
+        <h3>Fram, Kon-Tiki a kousek města</h3>
+        <ul>
+          <li><b>Fram</b>: skutečná polární loď, paluba, kajuty i podpalubí</li>
+          <li><b>Kon-Tiki</b>: originální vor a Ra II</li>
+          <li>Za hezkého počasí královský palác a Karl Johans gate</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="ut27" data-date="2026-10-27" data-short="Út 27. 10.">
+        <span class="date">Úterý 27. října</span>
+        <h3>Dinosauři a Grünerløkka</h3>
+        <ul>
+          <li><b>Přírodovědné muzeum</b>: dinosauři, minerály a zvířata</li>
+          <li><b>Grünerløkka</b>: procházka čtvrtí a vafle</li>
+          <li>Podle sil k řece Akerselvě a do tržnice Mathallen</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="st28" data-date="2026-10-28" data-short="St 28. 10.">
+        <span class="date">Středa 28. října</span>
+        <h3>Holmenkollen a Nobel</h3>
+        <ul>
+          <li><b>Holmenkollen</b>: skokanský můstek, lyžařské muzeum a věž s výhledem</li>
+          <li>Oběd u nábřeží Aker Brygge</li>
+          <li><b>Nobelovo centrum míru</b>: příběhy Nobelovy ceny míru</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="ct29" data-date="2026-10-29" data-short="Čt 29. 10.">
+        <span class="date">Čtvrtek 29. října</span>
+        <h3>Kringsjå a Sognsvann</h3>
+        <ul>
+          <li><b>Kringsjå</b>: koleje, kde jsem bydlel jako student, a moje příběhy</li>
+          <li><b>Jezero Sognsvann</b>: lesem kolem vody a svačina u jezera</li>
+          <li>Cestou zpět krátce univerzita Blindern</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="pa30" data-date="2026-10-30" data-short="Pá 30. 10.">
+        <span class="date">Pátek 30. října</span>
+        <h3>Věda, stroje a vynálezy</h3>
+        <ul>
+          <li><b>Technické muzeum</b>: pokusy, stroje a doprava</li>
+          <li>Kluci si můžou všechno sami vyzkoušet, klidně celé dopoledne</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="so31" data-date="2026-10-31" data-short="So 31. 10.">
+        <span class="date">Sobota 31. října</span>
+        <h3>Vigeland a skuteční Vikingové</h3>
+        <ul>
+          <li><b>Vigelandův park</b>: sochy, Monolit a hřiště</li>
+          <li><b>Historické muzeum</b>: severské mýty a vikingské nálezy</li>
+          <li>Nebo místo toho Halloween ve skanzenu Folkemuseum</li>
+        </ul>
+      </li>
+      <li class="plan-day" id="ne01" data-date="2026-11-01" data-short="Ne 1. 11.">
+        <span class="date">Neděle 1. listopadu</span>
+        <h3>Cesta domů</h3>
+        <ul>
+          <li>Sbalit, uklidit byt a letět zpátky do Prahy</li>
+        </ul>
+      </li>
+    </ol>
+  </article>
+
+  <!-- Nový den: zkopírovat celý <article class="entry">, změnit id, data-…, video, fotky a text. Navigace se složí sama. -->
+  <article class="entry" id="den1" data-short="So–Ne 24.–25. 10." data-title="Cesta, knihovna a Opera" hidden>
+    <div class="entry-head col">
+      <span class="date">Sobota a neděle 24.–25. října</span>
+      <h2>Cesta, knihovna a Opera</h2>
+    </div>
+
+    <!-- data-youtube: sem vložit odkaz na neveřejné video z YouTube (https://youtu.be/… nebo …watch?v=…).
+         Dokud je prázdný, ukazuje se jen náhled s nápisem „Video brzy“. -->
+    <section class="film" aria-label="Video" data-youtube="https://youtu.be/HPSSpWEWdlI" data-poster="den1/video/nahled.jpg" data-title="Oslo – vlog, sobota a neděle">
+      <div class="film-frame"></div>
+      <p class="film-cap">Vlog ze soboty a neděle · 7:56</p>
+    </section>
+
+    <p class="lead col">Do Osla se vracím po skoro dvaceti letech, tentokrát s celou rodinou. První dva dny: noc skoro bez spánku, cesta s kufry bez auta, deštivá neděle v knihovně, kde kluci pochopili, proč se učit anglicky, a odpoledne po mramorové střeše Opery.</p>
+
+    <section class="gal" aria-label="Fotky">
+      <p class="label">Fotky</p>
+      <script type="application/json" class="gal-data">[
+        ["den1/fotky/IMG_3003.jpg", "Trollové hned na letišti", "Trollové a nápis Norway na letišti v Oslu"],
+        ["den1/fotky/IMG_3011.jpg", "Vlakem z letiště do města", "Tabule na nástupišti s vlakem do Drammenu"],
+        ["den1/fotky/IMG_3020.jpg", "Neděle v knihovně, venku prší", "Plná vstupní hala knihovny Deichman"],
+        ["den1/fotky/IMG_3021.jpg", "Den pro děti, i s Hvězdnými válkami", "Stormtrooper mezi dětmi v hale knihovny"],
+        ["den1/fotky/IMG_3030.jpg", "V dílně", "Kluk v dílně u stolu se součástkami"],
+        ["den1/fotky/IMG_3038.jpg", "U staré obrazovky", "Kluk se usmívá u staré obrazovky"],
+        ["den1/fotky/IMG_3042.jpg", "Bradavice z kostiček", "Kluci u velkého modelu hradu"],
+        ["den1/fotky/IMG_3045.jpg", "Jawa ze Star Wars", "Postava Jawy ze Star Wars v davu"],
+        ["den1/fotky/IMG_3046.jpg", "Barevná džungle na stěně", "Velká barevná malba džungle na stěně knihovny"],
+        ["den1/fotky/IMG_3059.jpg", "Patra knihovny", "Pohled shora do pater knihovny s eskalátory"],
+        ["den1/fotky/IMG_3047.jpg", "Z knihovny je vidět na Operu", "Z okna knihovny na střechu Opery a přístav"],
+        ["den1/fotky/IMG_3068.jpg", "U stolu s kartičkami", "Šárka a kluci u stolu s kartičkami"],
+        ["den1/fotky/IMG_3069.jpg", "Příběh, který kluci vymysleli", "Kresba s domem a postavami, příběh z kartiček"],
+        ["den1/fotky/IMG_3071.jpg", "Robot, který jsme stavěli", "Deska robota se svítící zelenou diodou"],
+        ["den1/fotky/IMG_3077.jpg", "Robin Rotor", "Deska robota Robin Rotor na stole"],
+        ["den1/fotky/IMG_3085.jpg", "Vlasy dupkem ze statiky", "Kluk s vlasy naježenými statickou elektřinou"],
+        ["den1/fotky/IMG_3090.jpg", "Mandalorian v knihovně", "Postava Mandaloriana a princezny v knihovně"],
+        ["den1/fotky/IMG_3097.jpg", "Na střeše Opery", "Šárka s klukama na střeše Opery"],
+        ["den1/fotky/IMG_3094.jpg", "Mramor a mraky", "Rodina na mramorové střeše Opery, za nimi město"],
+        ["den1/fotky/IMG_3098.jpg", "Po Opeře se dá chodit", "Kluci s deštníkem na střeše Opery"],
+        ["den1/fotky/IMG_3100.jpg", "Výhled na přístav", "Výhled ze střechy Opery na přístav a město"],
+        ["den1/fotky/IMG_3102.jpg", "Nové Munchovo muzeum", "Munchovo muzeum u vody"],
+        ["den1/fotky/IMG_3105.jpg", "A obří loď v přístavu", "Mramorové nábřeží, v pozadí velká výletní loď"],
+        ["den1/fotky/IMG_3107.jpg", "Uvnitř Opery dřevo a sklo", "Foyer Opery s dřevěnou stěnou a velkými okny"],
+        ["den1/fotky/IMG_3109.jpg", "A všude samý mramor", "Prostorná hala Opery s mramorovou podlahou"],
+        ["den1/fotky/IMG_3114.jpg", "Soumrak", "Soumrak u Opery a Munchova muzea"],
+        ["den1/fotky/IMG_3116.jpg", "Kluci v nápisu OSLO", "Svítící nápis OSLO a kluci mezi písmeny"],
+        ["den1/fotky/IMG_3117.jpg", "Suvenýry", "Kluk v obchodě se suvenýry"],
+        ["den1/fotky/IMG_3118.jpg", "S trollem na dobrou noc", "Rodina u sochy trolla před obchodem"]
+      ]</script>
+    </section>
+
+    <div class="text-block col">
+      <p class="label">Jak to bylo</p>
+
+      <section>
+        <h2>Zase na poslední chvíli</h2>
+        <div class="text">
+          <p>Na začátek: balili jsme. Fakt jako zase na poslední chvíli. Já jsem balil a připravoval věci skoro do rána a vstával jsem v pět. Šárka šla spát ve 3:45 a vstávala taky v pět.</p>
+          <p>Samozřejmě jsme vyjeli o půl hodiny později, než jsme chtěli, ale tu rezervu jsme měli. Cestou na letiště bylo velké zdržení, protože těsně před letištěm je rozkopaná křižovatka. Dlouho trvalo dostat se na parkoviště a pak zase z parkoviště na letiště. Všechno jsme to ale stihli, takže dobrý.</p>
+          <p>A pak přistání v zemi, kde je větší tma, větší zima a víc prší než doma. A s sebou dva velké těžké kufry a čtyři malé. Vzali jsme trošku víc oblečení, protože jsme nevěděli, jaké tu budou teploty. Zatím to vypadá, že dobře, protože teplo tu fakt není.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Poprvé bez auta</h2>
+        <div class="text">
+          <p>Je to první výlet, který jedeme takhle na vlastní pěst, kdy si nepůjčujeme auto. A je to celkem limit. Ve městě auto samozřejmě nepotřebujeme, ale dostat se z letiště s těma kuframa vlakem, tramvají a pak pěšky není vůbec snadné. Ale stojí to za to, opravdu.</p>
+          <p>Je to docela neobvyklé, takhle na konci října vyrazit na sever. Ale oproti dovolené klasického ražení je to něco úplně jiného, že jsme s klukama mohli vyrazit sem.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Po skoro dvaceti letech</h2>
+        <div class="text">
+          <p>Je dost zajímavé se sem vracet po skoro 20 letech. Už si vlastně ani nejsem jistý, kde co přesně je. A ani si jistý být nemůžu, protože tu proběhla taková výstavba, že přibylo velké množství budov.</p>
+          <p>Klukům jsem celou dobu vyprávěl, že jsem tady byl a co jsem tady dělal, a teď jim to konečně můžu ukázat. To mě moc těší. Máme toho před sebou samozřejmě strašně moc.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Knihovna, kde všichni mluví anglicky</h2>
+        <div class="text">
+          <p>Zajímavé je, že když jsme šli do knihovny, strašně to klukům otevřelo oči. Byla tam spousta lidí a úplně každý, i uklízečky, uměl anglicky.</p>
+          <p>Seděli jsme u stolu a stavěli roboty s pánem a jeho klukem. Ti spolu chvíli mluvili anglicky, chvíli norsky, protože je to smíšená rodina. Kluci si zkusili i to, že si vzali kartičky v norštině. Pán v norštině nebo v angličtině vysvětlil Šárce, co s nimi mají dělat, Šárka to vysvětlila klukům. Kluci vymysleli příběh, řekli ho mně a já ho pánovi řekl anglicky.</p>
+          <blockquote>A tam prostě viděli, jak je důležité ten jazyk umět.</blockquote>
+          <p>Takže za mě je to velká výhra, že jim člověk může ukázat, že je to fakt důležité. Už to není jenom dovolená, kdy jdeš po pláži a potřebuješ si koupit akorát oběd. Je to opravdu mnohem větší interakce s lidmi tady. Moc doufám, že to pro ně bude motivace.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Co říká Šárka</h2>
+        <div class="text">
+          <p>Šárce se Oslo po prvním dni líbí. Říká, že město je fakt pěkné, nejen tím, jak je architektonicky a urbanisticky udělané, ale i s ohledem na lidi. Na první pohled je to bezpečné, čisté, je to tady takové svěží. A to vlastně ještě pořádně nic neviděla. To mě těší, že to takhle vidí.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Město, které nevrčí</h2>
+        <div class="text">
+          <p>Zajímavá věc, kterou jsem ještě neřekl: 97 % nových aut, která se tady prodají, jsou elektromobily. Ve městě to samozřejmě 97 % není, protože ještě dojíždějí stará auta, ale hrubým odhadem to bude určitě kolem 80 %. Jezdí tu elektrická auta a dodávky taky.</p>
+          <p>Je to hrozně příjemné. Je to tiché a nesmrdí to. Když jdeš po ulici, je to trošku jiné než u nás. My jsme zvyklí, že auta vrčí, a tady to najednou není. Fakt je to skvělé.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Opera, po které se chodí</h2>
+        <div class="text">
+          <p>Je to hodně zajímavé na koukání. Líbí se mi, že kluci chápou, když se jdou podívat na Operu, že je to fakt zajímá. Proč tam ta opera je, co to znamená pro město, že má takovou stavbu, a že jsou tam takové materiály, jako mramor a sklo.</p>
+          <p>Cestou je postavená nádherná nová budova Munchova muzea. Šli jsme se podívat jenom dovnitř. Původně to vůbec nebylo v plánu, ale Máťa přišel s tím, že by si to chtěl jít prohlédnout.</p>
+          <p>Zjišťovali jsme si zajímavé informace. Jeho nejslavnější obraz, Výkřik, má odhadovanou cenu něco kolem 3 miliard korun. A je tam 26 tisíc jeho prací. Kdyby se to vyčíslilo celé, v hodnotě, za kterou by se to dalo prodat, jsou to desítky až stovky miliard korun. Kluci si to přepočítávali na auta a na baráky, aby zjistili, co to vlastně je.</p>
+          <p>Chceme se tam jít podívat, protože jeho obrazy jsou jednoduché na pochopení, i když o umění nic nevíš. A měly by tam být místnosti, kde člověk může pochopit barvy, kombinace materiálů a podobně. Máťa, jak má rád výtvarku, říkal, že by to určitě chtěl vidět. Takže se tam samozřejmě půjdeme podívat.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Losos a krb</h2>
+        <div class="text">
+          <p>Večer jsme si udělali lososa. Podařilo se nám vybrat moc pěkný byt. A dokonce je tu i krb, tak jsme si na chvíli udělali oheň. Ale víckrát už to dělat nebudu, fakt se mi nechce.</p>
+        </div>
+      </section>
+
+      <p class="next">Kluci se těší na pondělí: <b>Fram a Kon-Tiki</b>. Těšíme se na zítřek.</p>
+    </div>
+  </article>
+
+  <footer class="col">Oslo · 24. 10. – 1. 11. 2026 · Pavel, Šárka, Máťa a Tomík</footer>
+</div>
+
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Fotka">
+  <div class="bar"><span id="v-cap"></span><button id="v-close">Zavřít</button></div>
+  <div class="stage" id="v-stage"><img id="v-img" alt=""></div>
+  <div class="nav"><button id="v-prev">← Předchozí</button><span id="v-count"></span><button id="v-next">Další →</button></div>
+</div>
+
+<script>
+const entries = [...document.querySelectorAll(".entry")];
+const days = document.getElementById("days");
+const thumb = src => src.replace(/\/([^/]+)$/, "/nahled/$1");
+
+const program = document.getElementById("program");
+const planDays = [...program.querySelectorAll(".plan-day")];
+const daysDone = entries.filter(e => e !== program);
+const now = new Date();
+const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+// karty programu: den se zápisem odkazuje na zápis, ostatní jsou šedé („brzy“, případně „dnes“)
+for (const card of planDays) {
+  const entry = card.dataset.entry && document.getElementById(card.dataset.entry);
+  const state = document.createElement("span");
+  state.className = "plan-state";
+  if (entry) {
+    state.textContent = "Proběhlo";
+    card.insertAdjacentHTML("beforeend", `<a class="plan-link" href="#${entry.id}">Zápis, fotky a video →</a>`);
+  } else {
+    card.classList.add("soon");
+    if (card.dataset.date === today) card.classList.add("today");
+    state.textContent = card.dataset.date === today ? "Dnes · zápis brzy" : "Teprve přijde";
+  }
+  card.prepend(state);
+}
+
+// navigace: program, hotové dny, pak dny v plánu šedě (odkazují na svou kartu v programu)
+for (const e of [program, ...daysDone]) {
+  const a = document.createElement("a");
+  a.href = `#${e.id}`;
+  a.innerHTML = `<b>${e.dataset.short}</b><small>${e.dataset.title}</small>`;
+  days.append(a);
+}
+for (const card of planDays.filter(c => c.classList.contains("soon"))) {
+  const a = document.createElement("a");
+  a.className = "soon";
+  a.href = `#${card.id}`;
+  a.innerHTML = `<b>${card.dataset.short}</b><small>${card.querySelector("h3").textContent} · ${card.classList.contains("today") ? "dnes" : "brzy"}</small>`;
+  days.append(a);
+}
+
+// video z YouTube: z odkazu v data-youtube vezme číslo videa; bez odkazu jen náhled
+const youtubeId = s => (s.match(/(?:youtu\.be\/|[?&]v=|embed\/|shorts\/|live\/)([\w-]{11})/) || s.match(/^([\w-]{11})$/) || [])[1];
+function setupFilm(entry) {
+  const film = entry.querySelector(".film");
+  if (!film) return;
+  const frame = film.querySelector(".film-frame");
+  const id = youtubeId(film.dataset.youtube.trim());
+  if (id) {
+    frame.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?rel=0" title="${film.dataset.title}"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  } else {
+    frame.innerHTML = `<img src="${film.dataset.poster}" alt=""><span class="film-soon">Video brzy<small>Přidáme ho sem, až bude na YouTube.</small></span>`;
+  }
+}
+
+// galerie: velká fotka, šipky, náhledy pod ní, klepnutím přes celou obrazovku
+function setupGallery(gal) {
+  const photos = JSON.parse(gal.querySelector(".gal-data").textContent);
+  gal.insertAdjacentHTML("beforeend", `
+    <div class="gal-stage">
+      <img alt="">
+      <button class="gal-nav gal-prev" aria-label="Předchozí fotka">‹</button>
+      <button class="gal-nav gal-next" aria-label="Další fotka">›</button>
+      <span class="gal-count"></span>
+      <button class="gal-full">Zvětšit</button>
+    </div>
+    <p class="gal-cap"></p>
+    <div class="gal-strip" role="list"></div>`);
+  const img = gal.querySelector(".gal-stage > img");
+  const cap = gal.querySelector(".gal-cap");
+  const count = gal.querySelector(".gal-count");
+  const strip = gal.querySelector(".gal-strip");
+  photos.forEach(([src, c, alt], i) => {
+    const b = document.createElement("button");
+    b.setAttribute("role", "listitem");
+    b.setAttribute("aria-label", `Fotka ${i + 1}: ${c}`);
+    b.innerHTML = `<img src="${thumb(src)}" alt="" loading="lazy">`;
+    b.addEventListener("click", () => show(i));
+    strip.append(b);
+  });
+  let at = 0;
+  function show(i) {
+    at = (i + photos.length) % photos.length;
+    const [src, c, alt] = photos[at];
+    img.src = src;
+    img.alt = alt;
+    cap.textContent = c;
+    count.textContent = `${at + 1} / ${photos.length}`;
+    strip.querySelectorAll("button").forEach((b, j) => b.setAttribute("aria-current", j === at ? "true" : "false"));
+    const t = strip.children[at];
+    strip.scrollLeft = t.offsetLeft - strip.clientWidth / 2 + t.clientWidth / 2;
+    for (const k of [at + 1, at - 1]) new Image().src = photos[(k + photos.length) % photos.length][0];
+  }
+  gal.querySelector(".gal-prev").addEventListener("click", () => show(at - 1));
+  gal.querySelector(".gal-next").addEventListener("click", () => show(at + 1));
+  const full = () => openViewer(photos, at, i => show(i));
+  img.addEventListener("click", full);
+  gal.querySelector(".gal-full").addEventListener("click", full);
+  swipe(gal.querySelector(".gal-stage"), d => show(at + d));
+  show(0);
+}
+
+function swipe(el, go) {
+  let x0 = null;
+  el.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  el.addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+    x0 = null;
+  });
+}
+
+// prohlížení přes celou obrazovku
+const viewer = document.getElementById("viewer");
+const vImg = document.getElementById("v-img");
+let vPhotos = [], vAt = 0, vSync = null, opener = null;
+function vShow(i) {
+  vAt = (i + vPhotos.length) % vPhotos.length;
+  const [src, c, alt] = vPhotos[vAt];
+  vImg.src = src;
+  vImg.alt = alt;
+  document.getElementById("v-cap").textContent = c;
+  document.getElementById("v-count").textContent = `${vAt + 1} / ${vPhotos.length}`;
+  vSync && vSync(vAt);
+}
+function openViewer(photos, i, sync) {
+  opener = document.activeElement;
+  vPhotos = photos; vSync = sync;
+  vShow(i);
+  viewer.hidden = false;
+  document.body.style.overflow = "hidden";
+  document.getElementById("v-close").focus();
+}
+function closeViewer() { viewer.hidden = true; document.body.style.overflow = ""; opener && opener.focus && opener.focus(); }
+document.getElementById("v-close").addEventListener("click", closeViewer);
+document.getElementById("v-prev").addEventListener("click", () => vShow(vAt - 1));
+document.getElementById("v-next").addEventListener("click", () => vShow(vAt + 1));
+document.getElementById("v-stage").addEventListener("click", e => { if (e.target.id === "v-stage") closeViewer(); });
+swipe(document.getElementById("v-stage"), d => vShow(vAt + d));
+document.addEventListener("keydown", e => {
+  if (viewer.hidden) return;
+  if (e.key === "Escape") closeViewer();
+  if (e.key === "ArrowLeft") vShow(vAt - 1);
+  if (e.key === "ArrowRight") vShow(vAt + 1);
+});
+
+entries.forEach(setupFilm);
+document.querySelectorAll(".gal").forEach(setupGallery);
+
+// co ukázat: zápis dne, kartu v programu, jinak program
+function route(jump) {
+  const id = location.hash.slice(1);
+  const card = planDays.find(c => c.id === id);
+  const show = card ? program : entries.find(e => e.id === id) || program;
+  entries.forEach(e => {
+    // odcházím ze dne: znovunačtením přehrávače se video zastaví
+    if (e !== show && !e.hidden) e.querySelectorAll("iframe").forEach(f => { f.src = f.src; });
+    e.hidden = e !== show;
+  });
+  const cur = card ? card.id : show.id;
+  days.querySelectorAll("a").forEach(a => a.setAttribute("aria-current", a.hash === `#${cur}` ? "page" : "false"));
+  days.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  planDays.forEach(c => c.classList.toggle("flash", c === card));
+  if (card) card.scrollIntoView({ block: "start" });
+  else if (jump) window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", () => route(true));
+route(false);
+</script>

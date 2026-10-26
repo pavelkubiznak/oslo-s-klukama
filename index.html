@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
 <style>
-/* Deník z cesty: nahoře dny jako záložky, v každém dni video, úvod, jedna galerie a text. Barvy: mokrý mramor Opery, fjord, červené svetry kluků. */
+/* Deník z cesty: dny ve sloupci vedle zápisu (na mobilu nahoře), v každém dni video, úvod, jedna galerie a text. Barvy: mokrý mramor Opery, fjord, červené svetry kluků. */
 :root {
   --bg: #f2f4f5;          /* mokrý mramor */
   --paper: #ffffff;
@@ -43,7 +43,13 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 72px; display: grid; gap: 40px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 72px; display: grid; gap: 40px; }
+main { display: grid; gap: 40px; min-width: 0; }
+/* počítač: vlevo sloupec dnů, vpravo nadpis, zápis a patička */
+@media (min-width: 880px) {
+  .wrap { grid-template-columns: 13rem minmax(0, 1fr); column-gap: 48px; }
+  .wrap > header, main, .wrap > footer { grid-column: 2; }
+}
 .col { max-width: 40rem; margin: 0 auto; width: 100%; min-width: 0; }
 
 header { display: grid; gap: 10px; }
@@ -51,10 +57,10 @@ header { display: grid; gap: 10px; }
 h1 { font: 800 var(--step-3)/.95 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
 .who { color: var(--muted); margin: 4px 0 0; font-size: 1.05rem; }
 
-/* dny jako záložky */
-.days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+/* dny: na mobilu dva sloupce pod nadpisem, na počítači jeden sloupec vlevo */
+.days { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .days a, .days span {
-  flex: none; display: grid; gap: 2px; padding: 10px 14px; border-radius: 10px; text-decoration: none;
+  display: grid; gap: 2px; align-content: start; padding: 10px 14px; border-radius: 10px; text-decoration: none;
   border: 1px solid var(--line); background: var(--paper); color: var(--ink); min-width: 0;
 }
 .days b { font: 700 .95rem/1.2 var(--display); }
@@ -62,12 +68,14 @@ h1 { font: 800 var(--step-3)/.95 var(--display); letter-spacing: -.02em; margin:
 .days a:hover { border-color: var(--fjord); }
 .days a[aria-current="page"] { background: var(--fjord); border-color: var(--fjord); color: var(--bg); }
 .days a[aria-current="page"] small { color: var(--bg); opacity: .85; }
-/* dny, které teprve přijdou: šedé, čárkovaný rámeček */
-.days a.soon { border-style: dashed; background: transparent; color: var(--muted); }
-.days a.soon b { font-weight: 500; }
-.days a.soon[aria-current="page"] { background: transparent; color: var(--ink); border-color: var(--fjord); }
-.days a.soon[aria-current="page"] small { color: var(--muted); opacity: 1; }
-.days a:focus-visible, button:focus-visible, .plan-link:focus-visible { outline: 3px solid var(--fjord); outline-offset: 2px; }
+/* dny, které teprve přijdou: šedé, čárkovaný rámeček, nedají se otevřít */
+.days .soon { border-style: dashed; background: transparent; color: var(--muted); }
+.days .soon b { font-weight: 500; }
+.days .soon.today { border-color: var(--sweater); }
+.days a:focus-visible, button:focus-visible { outline: 3px solid var(--fjord); outline-offset: 2px; }
+@media (min-width: 880px) {
+  .days { grid-column: 1; grid-row: 2 / span 2; align-self: start; position: sticky; top: 24px; grid-template-columns: 1fr; }
+}
 
 .entry { display: grid; gap: 40px; }
 .entry-head { display: grid; gap: 8px; }
@@ -78,32 +86,6 @@ h2 { font: 700 var(--step-2)/1.15 var(--display); letter-spacing: -.01em; margin
 .label { font: 700 .8rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
   display: flex; align-items: center; gap: 12px; margin: 0; }
 .label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-
-/* program týdne: karta pro každý den */
-.plan { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
-.plan-day {
-  display: grid; gap: 10px; align-content: start; padding: 18px 18px 16px; border-radius: 12px;
-  background: var(--paper); border: 1px solid var(--line); border-top: 4px solid var(--fjord); scroll-margin-top: 24px;
-}
-.plan-day h3 { font: 700 1.3rem/1.2 var(--display); margin: 0; text-wrap: balance; }
-.plan-day ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: 1rem; line-height: 1.5; }
-.plan-day li::marker { color: var(--sweater); }
-.plan-state { font: 700 .75rem/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--sweater); }
-.plan-link {
-  justify-self: start; margin-top: 4px; font: 600 .95rem/1 var(--display); text-decoration: none;
-  color: var(--bg); background: var(--fjord); border-radius: 999px; padding: 11px 16px;
-}
-.plan-link:hover { filter: brightness(1.1); }
-/* den, který teprve přijde: zřetelně šedý */
-.plan-day.soon { background: transparent; border-style: dashed; border-top: 4px dashed var(--line); color: var(--muted); }
-.plan-day.soon:not(.today) { opacity: .72; }
-.plan-day.soon h3, .plan-day.soon b { font-weight: 600; }
-.plan-day.soon li::marker { color: var(--muted); }
-.plan-day.soon .plan-state { color: var(--muted); }
-.plan-day.today { border-top-color: var(--sweater); border-top-style: solid; }
-.plan-day.today .plan-state { color: var(--sweater); }
-.plan-day.flash { outline: 3px solid var(--fjord); outline-offset: 3px; }
 
 /* video: přehrávač YouTube, dokud tam není odkaz, jen náhled */
 .film { display: grid; gap: 10px; }
@@ -180,97 +162,9 @@ footer { color: var(--muted); font: 500 .95rem/1.5 var(--display); text-align: c
 
   <nav class="days" id="days" aria-label="Dny"></nav>
 
-  <!-- Program: karta pro každý den. Když den proběhne a má svůj zápis, doplnit kartě data-entry="denN"
-       a karta i záložka zbarví. Dny bez zápisu jsou šedé, v navigaci „brzy“. -->
-  <article class="entry" id="program" data-short="Program týdne" data-title="Co nás čeká" hidden>
-    <div class="entry-head col">
-      <span class="date">24. 10. – 1. 11. 2026</span>
-      <h2>Co nás čeká</h2>
-    </div>
-    <p class="lead col">Celý pobyt máme naplánovaný den po dni. Šedé dny teprve přijdou; jakmile den proběhne, přibude u něj zápis s fotkami a videem. Když prší, plán se mění.</p>
-    <ol class="plan" aria-label="Program po dnech">
-      <li class="plan-day" id="so24" data-date="2026-10-24" data-short="So 24. 10." data-entry="den1">
-        <span class="date">Sobota 24. října</span>
-        <h3>Cesta do Osla</h3>
-        <ul>
-          <li>Ráno let z Prahy do Osla</li>
-          <li>Z letiště vlakem a tramvají, s kufry a bez auta</li>
-          <li>Večer zabydlet se v bytě</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="ne25" data-date="2026-10-25" data-short="Ne 25. 10." data-entry="den1">
-        <span class="date">Neděle 25. října</span>
-        <h3>Festival v knihovně</h3>
-        <ul>
-          <li><b>Knihovna Deichman</b>: festival pro děti, tvoření, pokusy a hry</li>
-          <li><b>Opera</b>: krátce zvenku, když přestane pršet</li>
-          <li>Kvůli dešti hlavně pod střechou</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="po26" data-date="2026-10-26" data-short="Po 26. 10.">
-        <span class="date">Pondělí 26. října</span>
-        <h3>Fram, Kon-Tiki a kousek města</h3>
-        <ul>
-          <li><b>Fram</b>: skutečná polární loď, paluba, kajuty i podpalubí</li>
-          <li><b>Kon-Tiki</b>: originální vor a Ra II</li>
-          <li>Za hezkého počasí královský palác a Karl Johans gate</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="ut27" data-date="2026-10-27" data-short="Út 27. 10.">
-        <span class="date">Úterý 27. října</span>
-        <h3>Dinosauři a Grünerløkka</h3>
-        <ul>
-          <li><b>Přírodovědné muzeum</b>: dinosauři, minerály a zvířata</li>
-          <li><b>Grünerløkka</b>: procházka čtvrtí a vafle</li>
-          <li>Podle sil k řece Akerselvě a do tržnice Mathallen</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="st28" data-date="2026-10-28" data-short="St 28. 10.">
-        <span class="date">Středa 28. října</span>
-        <h3>Holmenkollen a Nobel</h3>
-        <ul>
-          <li><b>Holmenkollen</b>: skokanský můstek, lyžařské muzeum a věž s výhledem</li>
-          <li>Oběd u nábřeží Aker Brygge</li>
-          <li><b>Nobelovo centrum míru</b>: příběhy Nobelovy ceny míru</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="ct29" data-date="2026-10-29" data-short="Čt 29. 10.">
-        <span class="date">Čtvrtek 29. října</span>
-        <h3>Kringsjå a Sognsvann</h3>
-        <ul>
-          <li><b>Kringsjå</b>: koleje, kde jsem bydlel jako student, a moje příběhy</li>
-          <li><b>Jezero Sognsvann</b>: lesem kolem vody a svačina u jezera</li>
-          <li>Cestou zpět krátce univerzita Blindern</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="pa30" data-date="2026-10-30" data-short="Pá 30. 10.">
-        <span class="date">Pátek 30. října</span>
-        <h3>Věda, stroje a vynálezy</h3>
-        <ul>
-          <li><b>Technické muzeum</b>: pokusy, stroje a doprava</li>
-          <li>Kluci si můžou všechno sami vyzkoušet, klidně celé dopoledne</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="so31" data-date="2026-10-31" data-short="So 31. 10.">
-        <span class="date">Sobota 31. října</span>
-        <h3>Vigeland a skuteční Vikingové</h3>
-        <ul>
-          <li><b>Vigelandův park</b>: sochy, Monolit a hřiště</li>
-          <li><b>Historické muzeum</b>: severské mýty a vikingské nálezy</li>
-          <li>Nebo místo toho Halloween ve skanzenu Folkemuseum</li>
-        </ul>
-      </li>
-      <li class="plan-day" id="ne01" data-date="2026-11-01" data-short="Ne 1. 11.">
-        <span class="date">Neděle 1. listopadu</span>
-        <h3>Cesta domů</h3>
-        <ul>
-          <li>Sbalit, uklidit byt a letět zpátky do Prahy</li>
-        </ul>
-      </li>
-    </ol>
-  </article>
-
-  <!-- Nový den: zkopírovat celý <article class="entry">, změnit id, data-…, video, fotky a text. Navigace se složí sama. -->
+  <main>
+  <!-- Nový den: zkopírovat celý <article class="entry">, změnit id, data-…, video, fotky a text,
+       a jeho den smazat ze seznamu COMING ve skriptu dole. Navigace se složí sama. -->
   <article class="entry" id="den1" data-short="So–Ne 24.–25. 10." data-title="Cesta, knihovna a Opera" hidden>
     <div class="entry-head col">
       <span class="date">Sobota a neděle 24.–25. října</span>
@@ -395,6 +289,8 @@ footer { color: var(--muted); font: 500 .95rem/1.5 var(--display); text-align: c
     </div>
   </article>
 
+  </main>
+
   <footer class="col">Oslo · 24. 10. – 1. 11. 2026 · Pavel, Šárka, Máťa a Tomík</footer>
 </div>
 
@@ -409,41 +305,31 @@ const entries = [...document.querySelectorAll(".entry")];
 const days = document.getElementById("days");
 const thumb = src => src.replace(/\/([^/]+)$/, "/nahled/$1");
 
-const program = document.getElementById("program");
-const planDays = [...program.querySelectorAll(".plan-day")];
-const daysDone = entries.filter(e => e !== program);
+// dny, které teprve přijdou: v navigaci šedě „brzy“. Když den dostane zápis, smazat ho odsud.
+const COMING = [
+  ["2026-10-26", "Po 26. 10.", "Fram a Kon-Tiki"],
+  ["2026-10-27", "Út 27. 10.", "Dinosauři a Grünerløkka"],
+  ["2026-10-28", "St 28. 10.", "Holmenkollen a Nobel"],
+  ["2026-10-29", "Čt 29. 10.", "Kringsjå a Sognsvann"],
+  ["2026-10-30", "Pá 30. 10.", "Technické muzeum"],
+  ["2026-10-31", "So 31. 10.", "Vigeland a Vikingové"],
+  ["2026-11-01", "Ne 1. 11.", "Cesta domů"],
+];
 const now = new Date();
 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-// karty programu: den se zápisem odkazuje na zápis, ostatní jsou šedé („brzy“, případně „dnes“)
-for (const card of planDays) {
-  const entry = card.dataset.entry && document.getElementById(card.dataset.entry);
-  const state = document.createElement("span");
-  state.className = "plan-state";
-  if (entry) {
-    state.textContent = "Proběhlo";
-    card.insertAdjacentHTML("beforeend", `<a class="plan-link" href="#${entry.id}">Zápis, fotky a video →</a>`);
-  } else {
-    card.classList.add("soon");
-    if (card.dataset.date === today) card.classList.add("today");
-    state.textContent = card.dataset.date === today ? "Dnes · zápis brzy" : "Teprve přijde";
-  }
-  card.prepend(state);
-}
-
-// navigace: program, hotové dny, pak dny v plánu šedě (odkazují na svou kartu v programu)
-for (const e of [program, ...daysDone]) {
+// navigace: hotové dny jako odkazy, pak dny, které přijdou, šedě
+for (const e of entries) {
   const a = document.createElement("a");
   a.href = `#${e.id}`;
   a.innerHTML = `<b>${e.dataset.short}</b><small>${e.dataset.title}</small>`;
   days.append(a);
 }
-for (const card of planDays.filter(c => c.classList.contains("soon"))) {
-  const a = document.createElement("a");
-  a.className = "soon";
-  a.href = `#${card.id}`;
-  a.innerHTML = `<b>${card.dataset.short}</b><small>${card.querySelector("h3").textContent} · ${card.classList.contains("today") ? "dnes" : "brzy"}</small>`;
-  days.append(a);
+for (const [date, short, title] of COMING) {
+  const span = document.createElement("span");
+  span.className = date === today ? "soon today" : "soon";
+  span.innerHTML = `<b>${short}</b><small>${title} · ${date === today ? "dnes" : "brzy"}</small>`;
+  days.append(span);
 }
 
 // video z YouTube: z odkazu v data-youtube vezme číslo videa; bez odkazu jen náhled
@@ -557,22 +443,17 @@ document.addEventListener("keydown", e => {
 entries.forEach(setupFilm);
 document.querySelectorAll(".gal").forEach(setupGallery);
 
-// co ukázat: zápis dne, kartu v programu, jinak program
+// co ukázat: zápis dne podle odkazu, jinak poslední hotový den
 function route(jump) {
   const id = location.hash.slice(1);
-  const card = planDays.find(c => c.id === id);
-  const show = card ? program : entries.find(e => e.id === id) || program;
+  const show = entries.find(e => e.id === id) || entries[entries.length - 1];
   entries.forEach(e => {
     // odcházím ze dne: znovunačtením přehrávače se video zastaví
     if (e !== show && !e.hidden) e.querySelectorAll("iframe").forEach(f => { f.src = f.src; });
     e.hidden = e !== show;
   });
-  const cur = card ? card.id : show.id;
-  days.querySelectorAll("a").forEach(a => a.setAttribute("aria-current", a.hash === `#${cur}` ? "page" : "false"));
-  days.querySelector('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  planDays.forEach(c => c.classList.toggle("flash", c === card));
-  if (card) card.scrollIntoView({ block: "start" });
-  else if (jump) window.scrollTo(0, 0);
+  days.querySelectorAll("a").forEach(a => a.setAttribute("aria-current", a.hash === `#${show.id}` ? "page" : "false"));
+  if (jump) window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", () => route(true));
 route(false);

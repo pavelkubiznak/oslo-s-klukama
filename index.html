@@ -1248,7 +1248,6 @@ const thumb = src => src.replace(/\/([^/]+)$/, "/nahled/$1");
 
 // dny, které teprve přijdou: v navigaci šedě „brzy“. Když den dostane zápis, smazat ho odsud.
 const COMING = [
-  ["2026-11-01", "Ne 1. 11.", "Cesta domů"],
 ];
 const now = new Date();
 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
